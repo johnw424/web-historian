@@ -10,9 +10,9 @@ exports.handleRequest = function (req, res) {
       res.writeHead(200, httpHelpers.headers);
       res.end(archive.getIndex());
     }else{
-      if(!archive.isUrlInList(req.url)){
+      if(!archive.isURLArchived(req.url)){
         res.writeHead(404, httpHelpers.headers);
-        res.end();
+        res.end(req.url);
       }else{
         res.writeHead(200, httpHelpers.headers);
         res.end(req.url);
