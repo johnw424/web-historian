@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
+var util = require('util');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -12,8 +13,14 @@ var _ = require('underscore');
 exports.paths = {
   'siteAssets' : path.join(__dirname, '../web/public'),
   'archivedSites' : path.join(__dirname, '../archives/sites'),
-  'list' : path.join(__dirname, '../archives/sites.txt')
+  'list' : path.join(__dirname, '../archives/sites.txt'),
+  'index' : path.join(__dirname, '../web/public/index.html')
 };
+
+exports.getIndex = function(){
+  return fs.readFileSync(exports.paths.index);
+}
+
 
 // Used for stubbing paths for jasmine tests, do not modify
 exports.initialize = function(pathsObj){
@@ -26,15 +33,33 @@ exports.initialize = function(pathsObj){
 // modularize your code. Keep it clean!
 
 exports.readListOfUrls = function(){
+  var storage = {};
+  fs.readFile(exports.paths.list, 'utf8', function (err, data) {
+    console.log(data);
+    storage[data] = true;
+  });
+  return storage;
 };
 
-exports.isUrlInList = function(){
+exports.isUrlInList = function(url){
+  return exports.readListOfUrls()[url];
 };
 
-exports.addUrlToList = function(){
+exports.addUrlToList = function(url){
+  if(!exports.isUrlInList(url)){
+    fs.appendFile(exports.paths.list, url, function (err) {
+      if (err) throw err;
+      console.log('The "data to append" was appended to file!');
+    });
+  }
 };
 
-exports.isURLArchived = function(){
+exports.isURLArchived = function(url){
+  // var results;
+  // fs.exists(exports.paths.archivedSites+"/"+url, function(exists){
+  //   util.debug(exists ? results = true : results = false);
+  // });
+  // return results;
 };
 
 exports.downloadUrls = function(){
