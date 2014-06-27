@@ -34,8 +34,7 @@ exports.postURL = function(req, res){
   });
   req.on('end', function(){
     data = data.split('url=')[1];
-    console.log(data);
-    archive.addUrlToList(data);
+    archive.addUrlToList(data + '\n');
     res.writeHead(302, headers);
     serveAssets(res, data);
   });

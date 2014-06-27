@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var _ = require('underscore');
 var util = require('util');
+var http = require('http');
 
 /*
  * You will need to reuse the same paths many times over in the course of this sprint.
@@ -10,7 +11,7 @@ var util = require('util');
  * customize it in any way you wish.
  */
 
-exports.paths = {
+exports.paths = paths = {
   'siteAssets' : path.join(__dirname, '../web/public'),
   'archivedSites' : path.join(__dirname, '../archives/sites'),
   'list' : path.join(__dirname, '../archives/sites.txt'),
@@ -32,14 +33,14 @@ exports.initialize = function(pathsObj){
 // modularize your code. Keep it clean!
 
 exports.readListOfUrls = function(cb){
-  var storage = [];
   fs.readFile(exports.paths.list, 'utf8', function (err, data) {
+    var storage = [];
     var chunk = data.split('\n');
     _.each(chunk, function(item){
       storage.push(item);
     })
+    cb(storage);
   });
-  cb(storage);
 };
 
 exports.isUrlInList = function(url){
@@ -64,8 +65,21 @@ exports.addUrlToList = function(url){
 };
 
 exports.isURLArchived = function(url){
+  console.log("zzz",exports.paths.archivedSites+"/"+url);
   return fs.existsSync(exports.paths.archivedSites+"/"+url);
 };
 
 exports.downloadUrls = function(){
+  exports.readListOfUrls(function(storage){
+    _.each(storage, function(url){
+      if(!exports.isURLArchived(url)){
+        var req = http.get('http://' + url, function(res){
+            var file = fs.createWriteStream(paths.archivedSites.concat("/" + url));
+            res.pipe(file);
+        });
+
+        req.on('error', function(e) { console.log(e);});
+      }      
+    });
+  });
 };
